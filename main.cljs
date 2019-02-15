@@ -15,7 +15,7 @@
 
 (defn update-team
     [teams id new-team]
-    "Updates existing team"
+    "Updates an existing team"
     (let [id-keyword (keyword id)]
         (-> teams
             (assoc id-keyword (merge (get teams id-keyword) new-team))
@@ -25,7 +25,7 @@
 
 (defn join-team
     [teams id name]
-    "join existing team"
+    "Join existing team"
     (let [id-keyword (keyword id)
           team (get teams id-keyword)
           passengers (get team :passengers)
@@ -38,7 +38,7 @@
 
 (defn send-message
     [teams id message]
-    "send message to the team"
+    "Send message to the team"
     (let [id-keyword (keyword id)
           team (get teams id-keyword)
           messages (get team :messages)
