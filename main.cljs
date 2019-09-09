@@ -58,6 +58,6 @@
 (print (-> (send-message (update-team (init-team {} "123456789") "123456789" {:from "Skoltech" :to "Moscow"}) "123456789" "Hello, World!")
            (send-message "123456789" "Hello, Artem!")
            (send-message "123456789" "What's the deadline for HW1?")
-           (send-message "123456789" "It's already expired!")
+           (send-message "123456789" "It has expired already!")
        )
 )
