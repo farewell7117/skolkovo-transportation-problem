@@ -3,14 +3,14 @@
 (defn init-team
     [teams id]
     "Creates a taxi team"
-    (assoc teams (keyword id) {
+    (assoc teams (keyword id) (atom {
         :from ""
         :to ""
         :time 0
         :cost 0
         :messages []
         :passengers []
-    })
+    }))
 )
 
 (defn update-team
@@ -18,7 +18,7 @@
     "Updates an existing team"
     (let [id-keyword (keyword id)]
         (-> teams
-            (assoc id-keyword (merge (get teams id-keyword) new-team))
+            (assoc id-keyword (atom (merge (deref (get teams id-keyword)) new-team)))
         )
     )
 )
@@ -27,7 +27,7 @@
     [teams id name]
     "Join existing team"
     (let [id-keyword (keyword id)
-          team (get teams id-keyword)
+          team (deref (get teams id-keyword))
           passengers (get team :passengers)
           new-passengers (conj passengers name)]
         (-> teams
@@ -40,7 +40,7 @@
     [teams id message]
     "Send message to the team"
     (let [id-keyword (keyword id)
-          team (get teams id-keyword)
+          team (deref (get teams id-keyword))
           messages (get team :messages)
           new-messages (conj messages message)]
         (-> teams
@@ -49,6 +49,7 @@
     )
 )
 
+; Some tests
 (print (init-team {} "123456789"))
 (print "\n")
 (print (update-team (init-team {} "123456789") "123456789" {:from "Skoltech" :to "Moscow"}))
@@ -61,3 +62,17 @@
            (send-message "123456789" "It has expired already!")
        )
 )
+(print "\n")
+
+; More tests
+(print (-> (send-message (update-team (init-team {} "123456789") "123456789" {:from "Skoltech" :to "Moscow"}) "123456789" "Hello, World!")
+           (join-team "123456789" "Artem")
+           (join-team "123456789" "Sergei")
+           (send-message "123456789" "Serge: Hello, Artem!")
+           (send-message "123456789" "Serge: What's the deadline for HW1?")
+           (send-message "123456789" "Artem: It has expired already...")
+           (send-message "123456789" "Serge: F*ck!")
+       )
+)
+(print "\n")
+
