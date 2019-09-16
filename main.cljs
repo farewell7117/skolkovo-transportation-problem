@@ -3,7 +3,7 @@
 (defn init-team
     [teams id]
     "Creates a taxi team"
-    (assoc teams (keyword id) (atom {
+    (atom (swap! teams assoc (keyword id) {
         :from ""
         :to ""
         :time 0
@@ -17,9 +17,11 @@
     [teams id new-team]
     "Updates an existing team"
     (let [id-keyword (keyword id)]
-        (-> teams
-            (assoc id-keyword (atom (merge (deref (get teams id-keyword)) new-team)))
-        )
+        (atom (-> teams
+            (swap! assoc id-keyword (
+                merge (get @teams id-keyword) new-team
+            ))
+        ))
     )
 )
 
@@ -27,7 +29,7 @@
     [teams id name]
     "Join existing team"
     (let [id-keyword (keyword id)
-          team (deref (get teams id-keyword))
+          team (get @teams id-keyword)
           passengers (get team :passengers)
           new-passengers (conj passengers name)]
         (-> teams
@@ -40,7 +42,7 @@
     [teams id message]
     "Send message to the team"
     (let [id-keyword (keyword id)
-          team (deref (get teams id-keyword))
+          team (get @teams id-keyword)
           messages (get team :messages)
           new-messages (conj messages message)]
         (-> teams
@@ -50,24 +52,27 @@
 )
 
 ; Some tests
-(print (init-team {} "123456789"))
+(print (init-team (atom {}) "123456789"))
 (print "\n")
-(print (update-team (init-team {} "123456789") "123456789" {:from "Skoltech" :to "Moscow"}))
-(print "\n")
-(print (join-team (update-team (init-team {} "123456789") "123456789" {:from "Skoltech" :to "Moscow"}) "123456789" "Artem"))
-(print "\n")
-(print (-> (send-message (update-team (init-team {} "123456789") "123456789" {:from "Skoltech" :to "Moscow"}) "123456789" "Hello, World!")
-           (send-message "123456789" "Hello, Artem!")
-           (send-message "123456789" "What's the deadline for HW1?")
-           (send-message "123456789" "It has expired already!")
+
+(print (-> (init-team (atom {}) "123456789")
+           (update-team "123456789" {:from "Skoltech" :to "Moscow"})
        )
 )
 (print "\n")
 
-; More tests
-(print (-> (send-message (update-team (init-team {} "123456789") "123456789" {:from "Skoltech" :to "Moscow"}) "123456789" "Hello, World!")
+(print (-> (init-team (atom {}) "123456789")
+           (update-team "123456789" {:from "Skoltech" :to "Moscow"})
            (join-team "123456789" "Artem")
-           (join-team "123456789" "Sergei")
+           (join-team "123456789" "Serge")
+       )
+)
+(print "\n")
+
+(print (-> (init-team (atom {}) "123456789")
+           (update-team "123456789" {:from "Skoltech" :to "Moscow"})
+           (join-team "123456789" "Artem")
+           (join-team "123456789" "Serge")
            (send-message "123456789" "Serge: Hello, Artem!")
            (send-message "123456789" "Serge: What's the deadline for HW1?")
            (send-message "123456789" "Artem: It has expired already...")
@@ -75,4 +80,3 @@
        )
 )
 (print "\n")
-
