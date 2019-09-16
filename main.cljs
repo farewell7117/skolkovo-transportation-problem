@@ -28,26 +28,20 @@
 (defn join-team
     [teams id name]
     "Join existing team"
-    (let [id-keyword (keyword id)
-          team (get @teams id-keyword)
-          passengers (get team :passengers)
-          new-passengers (conj passengers name)]
-        (-> teams
-            (update-team id (merge team {:passengers new-passengers}))
-        )
+    (let [id-keyword (keyword id)]
+        (atom (-> teams
+            (swap! update-in [id-keyword :passengers] conj name)
+        ))
     )
 )
 
 (defn send-message
     [teams id message]
     "Send message to the team"
-    (let [id-keyword (keyword id)
-          team (get @teams id-keyword)
-          messages (get team :messages)
-          new-messages (conj messages message)]
-        (-> teams
-            (update-team id (merge team {:messages new-messages}))
-        )
+    (let [id-keyword (keyword id)]
+        (atom (-> teams
+            (swap! update-in [id-keyword :messages] conj message)
+        ))
     )
 )
 
